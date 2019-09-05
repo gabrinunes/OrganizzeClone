@@ -1,2 +1,2 @@
 # OrganizzeClone
-clone do app Organizze para fins didáticos
+clone do app Mobile Android Organizze para fins didáticos 
