@@ -2,4 +2,6 @@
     <string name="app_name">Organizze</string>
     <string name="title_activity_cadastro">CadastroActivity</string>
     <string name="title_activity_principal">PrincipalActivity</string>
+    <string name="facebook_app_id">369311190407614</string> <string name="fb_login_protocol_scheme">fb369311190407614</string>
+
 </resources>

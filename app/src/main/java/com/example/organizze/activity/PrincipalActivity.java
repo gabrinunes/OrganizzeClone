@@ -26,8 +26,10 @@ import com.example.organizze.config.ConfiguracaoFireBase;
 import com.example.organizze.helper.Base64Custom;
 import com.example.organizze.model.Movimentacao;
 import com.example.organizze.model.Usuario;
+import com.facebook.login.LoginManager;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -60,6 +62,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private Movimentacao movimentacao;
     private DatabaseReference movimentacaoRef;
     private String mesAnoSelecionado;
+    private Usuario usuario;
 
     private FloatingActionMenu fab;
 
@@ -78,6 +81,9 @@ public class PrincipalActivity extends AppCompatActivity {
         fab = findViewById(R.id.menu);
         configuraCalendarView();
         swipe();
+        usuario = new Usuario();
+
+      
 
         //Configurar adpater
         adapterMovimentacao = new AdapterMovimentacao(movimentacoes,this);
@@ -89,22 +95,6 @@ public class PrincipalActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapterMovimentacao);
-
-
-        //Floating action Menu AutoHide
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-
-            }
-        });
-
 
 
 
@@ -265,18 +255,32 @@ public class PrincipalActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Usuario usuario = dataSnapshot.getValue(Usuario.class);
+                if(usuario==null){ //Verificação de usuario, feito para resolver o bug de login sem criação do usuario no firebase
+                     cadastroFbUser();//metodo que faz a criação dos nos no firebase(caso o login seja facebook,gmaill,etc)
+                }else {
 
-                 despesaTotal = usuario.getDespesaTotal();
-                 receitaTotal = usuario.getReceitaTotal();
-                 resunmoUsuario = receitaTotal - despesaTotal;
+                    despesaTotal = usuario.getDespesaTotal();
+                    receitaTotal = usuario.getReceitaTotal();
+                    resunmoUsuario = receitaTotal - despesaTotal;
 
-                DecimalFormat decimalFormat = new DecimalFormat("0.##");
-                String resultadoFormatado = decimalFormat.format(resunmoUsuario);
+                    DecimalFormat decimalFormat = new DecimalFormat("0.##");
+                    String resultadoFormatado = decimalFormat.format(resunmoUsuario);
 
-                 textoSaudacao.setText("Olá, " + usuario.getNome());
-                 textoSaldo.setText("R$ " + resultadoFormatado);
+                    textoSaudacao.setText("Olá, " + usuario.getNome());
+                    textoSaldo.setText("R$ " + resultadoFormatado);
+                }
 
             }
+           public void cadastroFbUser(){
+               FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+               String name = user.getDisplayName();
+               usuario.setEmail(user.getEmail());
+               usuario.setNome(name);
+               String IdUsuario = Base64Custom.codificarBase64(user.getEmail());
+               usuario.setIdUsuario(IdUsuario);
+               //Log.i("dados","dado: " +name);
+               usuario.salvar();
+           }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -296,6 +300,7 @@ public class PrincipalActivity extends AppCompatActivity {
         switch (item.getItemId()){
             case R.id.menuSair :
                       autenticacao.signOut();
+                      LoginManager.getInstance().logOut();
                       startActivity(new Intent(this,MainActivity.class));
                       finish();
                       break;
