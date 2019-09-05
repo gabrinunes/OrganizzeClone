@@ -171,7 +171,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 abrirTelaPrincipal();
 
                 }else{
-                    Toast.makeText(LoginActivity.this,"Erro de autenticação",Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this,"email ja cadastrado",Toast.LENGTH_LONG).show();
                     Log.i("task","task: "+task);
                 }
             }
@@ -185,8 +185,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
                     abrirTelaPrincipal();
-
                 }else{
+                    Toast.makeText(LoginActivity.this,"email ja cadastrado",Toast.LENGTH_LONG).show();
 
                 }
             }
