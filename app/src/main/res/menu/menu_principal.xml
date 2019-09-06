@@ -8,5 +8,11 @@
         android:title="Sair"
         app:showAsAction="never"
         />
+    <item
+        android:id="@+id/menuExcluirConta"
+        android:orderInCategory="90"
+        android:title="Excluir Conta"
+        app:showAsAction="never"
+        />
 
 </menu>

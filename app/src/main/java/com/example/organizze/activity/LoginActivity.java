@@ -1,8 +1,10 @@
 package com.example.organizze.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.nfc.Tag;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -60,9 +62,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private LoginButton loginButton;
     private Usuario usuario;
     private FirebaseAuth autenticacao;
+    private DatabaseReference firebaseRef = ConfiguracaoFireBase.getFirebaseDatabase();
     private CallbackManager mcallbackManager;
     private GoogleSignInClient mGoogleSignInClient;
-    private DatabaseReference usuarioRef;
+    private DatabaseReference usuarioRef,movimentacaoRef;
     private DatabaseReference firebase = ConfiguracaoFireBase.getFirebaseDatabase();
     private ValueEventListener valueEventListenerUsuario;
 
@@ -228,13 +231,33 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         });
     }
+    private void excluirUser() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String emailUsuario = autenticacao.getCurrentUser().getEmail();
+        String idUsuario = Base64Custom.codificarBase64(emailUsuario);
+        usuarioRef = firebaseRef.child("usuarios");
+        movimentacaoRef = firebaseRef.child("movimentacao");
+        usuarioRef.child(idUsuario).removeValue();
+        movimentacaoRef.child(idUsuario).removeValue();
+        //Usuario usuario = null;
+        user.delete();
+        autenticacao.signOut();
+        LoginManager.getInstance().logOut();
+        Log.i("keyss","keyss: "+ usuarioRef);
+    }
 
 
 
     @Override
     protected void onStart() {
-        ConfiguracaoFireBase.getFireBaseAutenticacao();
+        autenticacao = ConfiguracaoFireBase.getFireBaseAutenticacao();
         super.onStart();
+        if(autenticacao.getCurrentUser()!=null){//Solução encontrada pra resolver o bug de apos deletar a conta o usuario logar e tentar sair o app crasha
+            Log.i("usexx","usexx: "+ autenticacao);
+            excluirUser();
+            startActivity(new Intent(this,MainActivity.class));
+        }
     }
 
     private void signIn(){

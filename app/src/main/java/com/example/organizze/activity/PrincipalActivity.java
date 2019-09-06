@@ -255,6 +255,7 @@ public class PrincipalActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Usuario usuario = dataSnapshot.getValue(Usuario.class);
+                //FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if(usuario==null){ //Verificação de usuario, feito para resolver o bug de login sem criação do usuario no firebase
                      cadastroFbUser();//metodo que faz a criação dos nos no firebase(caso o login seja facebook,gmaill,etc)
                 }else {
@@ -272,14 +273,18 @@ public class PrincipalActivity extends AppCompatActivity {
 
             }
            public void cadastroFbUser(){
-               FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-               String name = user.getDisplayName();
-               usuario.setEmail(user.getEmail());
-               usuario.setNome(name);
-               String IdUsuario = Base64Custom.codificarBase64(user.getEmail());
-               usuario.setIdUsuario(IdUsuario);
-               //Log.i("dados","dado: " +name);
-               usuario.salvar();
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if(user==null){
+                    Toast.makeText(PrincipalActivity.this,"usuario excluído",Toast.LENGTH_LONG).show();
+                }else {
+                    String name = user.getDisplayName();
+                    usuario.setEmail(user.getEmail());
+                    usuario.setNome(name);
+                    String IdUsuario = Base64Custom.codificarBase64(user.getEmail());
+                    usuario.setIdUsuario(IdUsuario);
+                    //Log.i("dados","dado: " +name);
+                    usuario.salvar();
+                }
            }
 
             @Override
@@ -304,12 +309,40 @@ public class PrincipalActivity extends AppCompatActivity {
                       startActivity(new Intent(this,MainActivity.class));
                       finish();
                       break;
+            case R.id.menuExcluirConta:
+                alertDialogExcluirUser();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void adicionarReceita(View view){
+    private void alertDialogExcluirUser(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Excluir Conta");
+        alertDialog.setMessage("Você deseja realmente excluir essa conta?");
+        alertDialog.setCancelable(false);
+        alertDialog.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                abrirTelaLogin();
+            }
+        });
 
+        alertDialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        AlertDialog alert = alertDialog.create();
+        alert.show();
+    }
+
+    private void abrirTelaLogin() {
+    startActivity(new Intent(this,LoginActivity.class));
+    }
+
+    public void adicionarReceita(View view){
         startActivity(new Intent(this,ReceitasActivity.class));
 
     }
@@ -320,12 +353,14 @@ public class PrincipalActivity extends AppCompatActivity {
 
 
 
+
+
     @Override
     protected void onStart() {
         super.onStart();
-        recuperarResumo();
-        recuperarMovimentacoes();
-    }
+            recuperarResumo();
+            recuperarMovimentacoes();
+        }
 
 
     @Override

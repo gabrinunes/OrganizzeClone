@@ -12,10 +12,7 @@ public class Usuario {
     private String senha;
     private Double receitaTotal =0.00;
     private Double despesaTotal =0.00;
-
-
-
-
+    
     @Exclude
     public String getIdUsuario() {
         return idUsuario;
