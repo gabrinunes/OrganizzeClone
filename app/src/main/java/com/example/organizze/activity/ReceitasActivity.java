@@ -108,7 +108,11 @@ public class ReceitasActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Usuario usuario = dataSnapshot.getValue(Usuario.class);
-                receitaTotal = usuario.getReceitaTotal();
+                if(usuario==null){
+                    //tratando erro de null pointer ao deletar conta
+                }else {
+                    receitaTotal = usuario.getReceitaTotal();
+                }
             }
 
             @Override
